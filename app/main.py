@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse
 from .contract import CONTRACT_VERSION, FetchRequest, HealthRequest, Jobs, ListRequest, dump, env, error, staging_directory
 from .dumps import Dumps
 
-VERSION = "0.1.0"
+VERSION = "1.0.0"
 STAGING = env("STAGING_ROOT", "/staging")
 SETTLE_SECONDS = 120
 
@@ -40,7 +40,7 @@ MANIFEST: dict[str, Any] = {
     "type": "retrieval",
     "contractVersion": CONTRACT_VERSION,
     "description": "Takes finished dumps from the output folders of disc rippers and cartridge dumpers, with the tools' logs.",
-    "homepage": "https://github.com/dextrd/Romdex/tree/main/plugins/retriever-dumps",
+    "homepage": "https://github.com/Dextrd/romdex-retriever-dumps",
     "capabilities": ["list", "cancel"],
     "settingsSchema": SETTINGS_SCHEMA,
     "access": {"network": [], "files": ["dumps (read, and write when moving files out)", "staging (write)"]},

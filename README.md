@@ -1,4 +1,4 @@
-# Dumping tools (retriever)
+# Dumping tools retrieval plugin
 
 Takes finished dumps from the output folders of disc rippers and cartridge dumpers, with the tools' logs. Romdex works
 out what each one is from its checksums and files it, and shows the logs to whoever reviews it.
@@ -17,6 +17,9 @@ names the tool, when a log mentions one it knows.
 It only lists what's finished (**list**), and stages a dump when Romdex asks (**fetch**). It doesn't search: use the
 inbox folder plugin for that.
 
+It runs beside [Romdex](https://github.com/Dextrd/Romdex) as a container of its own, which Romdex reaches over the
+[retriever contract](https://github.com/Dextrd/Romdex/blob/main/docs/guide/writing-a-retriever-plugin.md).
+
 ## Settings
 
 | Setting | Default | |
@@ -26,6 +29,32 @@ inbox folder plugin for that.
 | `settleSeconds` | `120` | How long a dump must be unchanged before it's taken. |
 
 Romdex remembers what it has taken, so a dump kept in place isn't taken again unless it changes.
+
+## Adding it to Romdex
+
+Add this under `services:` in the compose file you run Romdex with, beside `core` and `igir-worker`, so it shares
+their `staging` volume:
+
+```yaml
+  retriever-dumps:
+    image: ghcr.io/dextrd/romdex-retriever-dumps:latest
+    container_name: romdex-retriever-dumps
+    user: "${PUID:-1000}:${PGID:-1000}"
+    restart: unless-stopped
+    volumes:
+      - staging:/staging
+      # Read-only, as it copies by default; make it writable to have dumps moved out.
+      - ${DUMPS_PATH:-./dumps}:/dumps:ro
+```
+
+`DUMPS_PATH` is the folder your dumping tools write to; set it in the `.env` file beside your compose file, or write the path in its place.
+
+Then start it with `docker compose up -d`. `latest` follows each release; to choose when it changes, use a version
+such as `1` or `1.0.0` instead. On SELinux hosts with podman, give it the same `security_opt` as Romdex's own
+containers.
+
+Then add `http://retriever-dumps:8080` under Settings → Plugins in Romdex (it's one of the templates under Add). The
+plugin makes no network calls.
 
 ## Running it
 
